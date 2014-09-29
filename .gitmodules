@@ -1,6 +1,6 @@
-[submodule "deps/bmfec"]
-	path = deps/bmfec
-	url = https://github.com/yamamushi/bmfec
 [submodule "deps/libbmwrapper"]
 	path = deps/libbmwrapper
 	url = https://github.com/yamamushi/libbmwrapper
+[submodule "deps/fecpp"]
+	path = deps/fecpp
+	url = https://github.com/randombit/fecpp

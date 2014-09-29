@@ -31,3 +31,21 @@
 # IDE Extras
 .idea/*
 
+# CMake files
+CMakeFiles/
+*CMakeFiles/*
+CMakeCache.txt
+*Makefile
+*cmake_install.cmake
+*.swp
+build/
+
+# Apple Stuff
+xcuserdata/
+*.xcodeproj
+.DS_Store
+
+# Sqlite stuff
+*.db
+
+
