@@ -1,0 +1,17 @@
+set(BMFEC_CLIENT_SOURCE
+   ${BMFEC_CLIENT_SOURCE}
+   ${CMAKE_CURRENT_SOURCE_DIR}/bmclientInterface.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/startupInterface.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/interface.cpp
+
+   PARENT_SCOPE
+)
+
+set(BMFEC_CLIENT_HEADERS
+   ${BMFEC_CLIENT_HEADERS}
+   ${CMAKE_CURRENT_SOURCE_DIR}/bmclientInterface.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/startupInterface.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/interface.h
+
+   PARENT_SCOPE
+)

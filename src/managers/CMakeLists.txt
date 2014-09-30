@@ -1,0 +1,20 @@
+
+
+set(BMFEC_CLIENT_SOURCE
+   ${BMFEC_CLIENT_SOURCE}
+   ${CMAKE_CURRENT_SOURCE_DIR}/ColorManager.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/GraphicsDriverManager.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/NetworkManager.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/WidgetManager.cpp
+   PARENT_SCOPE
+)
+
+set(BMFEC_CLIENT_HEADERS
+   ${BMFEC_CLIENT_HEADERS}
+   ${CMAKE_CURRENT_SOURCE_DIR}/ColorManager.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/GraphicsDriverManager.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/NetworkManager.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/WidgetManager.h
+   PARENT_SCOPE
+)
+
