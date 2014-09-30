@@ -3,4 +3,4 @@
 	url = https://github.com/yamamushi/libbmwrapper
 [submodule "deps/fecpp"]
 	path = deps/fecpp
-	url = https://github.com/randombit/fecpp
+	url = https://github.com/yamamushi/fecpp
