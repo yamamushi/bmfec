@@ -1,0 +1,21 @@
+set(BMFEC_CLIENT_SOURCE
+   ${BMFEC_CLIENT_SOURCE}
+   ${CMAKE_CURRENT_SOURCE_DIR}/connectionwidget.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/graphchart.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/MenuWidget.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/TimeWidget.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/widget.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/ScrollTextWidget.cpp
+   PARENT_SCOPE
+)
+
+set(BMFEC_CLIENT_HEADERS
+   ${BMFEC_CLIENT_HEADERS}
+   ${CMAKE_CURRENT_SOURCE_DIR}/connectionwidget.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/graphchart.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/MenuWidget.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/TimeWidget.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/widget.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/ScrollTextWidget.h
+   PARENT_SCOPE
+)

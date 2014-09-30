@@ -65,9 +65,9 @@ elseif(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
   CHECK_CXX_COMPILER_FLAG(-std=c++11 HAVE_STD11)
   if(HAVE_STD11)
     if(APPLE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Wextra -U__STRICT_ANSI__")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -Wextra -U__STRICT_ANSI__ -Wno-unused-parameter")
     else()
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wno-unused-parameter")
     endif()
   else()
     message(FATAL_ERROR "No C++11 support for Clang version. Please upgrade Clang to a version supporting C++11.")
@@ -97,10 +97,32 @@ execute_process(COMMAND git "submodule" "update" "--init" "--recursive" WORKING_
 #-----------------------------------------------------------------------------
 # Third party libraries
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+include(cmake/Modules/submodules.cmake)
+include(CheckIncludeFiles)
+include (FindPkgConfig)
+
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_COMPONENTS system random)
 find_package(Boost 1.53 REQUIRED ${Boost_COMPONENTS})
+
+find_package(XMLRPC REQUIRED c++2 libwww-client)
+
+PKG_SEARCH_MODULE(SDL2 OPTIONAL sdl2)
+PKG_SEARCH_MODULE(SDL2IMAGE OPTIONAL SDL2_image>=2.0.0)
+PKG_SEARCH_MODULE(SDL2TTF OPTIONAL SDL2_ttf>=2.0.0)
+PKG_SEARCH_MODULE(SDL2MIXER OPTIONAL SDL2_mixer>=2.0.0)
+INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${SDL2TTF_INCLUDE_DIR} ${SDL2MIXER_INCLUDE_DIR})
+
+set(_BMFEC_SDLCLIENT_ ON BOOL "SDL Client") # Configurable by user
+CHECK_INCLUDE_FILES("${SDL2_INCLUDE_DIRS}/SDL.h;${SDL2_INCLUDE_DIRS}/SDL_image.h;${SDL2_INCLUDE_DIRS}/SDL_ttf.h;${SDL2_INCLUDE_DIRS}/SDL_mixer.h" _BMFEC_SDLCLIENT_)
+
+
+set(_BMFEC_NCURSESCLIENT_ ON BOOL "Ncurses Client") # Configurable by user
+
+
+configure_file(src/config.h.in src/config.h)
 
 
 #-----------------------------------------------------------------------------

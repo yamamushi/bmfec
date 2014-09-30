@@ -26,7 +26,8 @@
 *.exe
 *.out
 *.app
-
+*bin/
+bin/
 
 # IDE Extras
 .idea/*
