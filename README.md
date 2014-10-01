@@ -21,7 +21,7 @@ This client will compile with support for ncurses and SDL, and html/css support 
 
 This is currently the default mode built:
 
-    Ncursesw
+    Ncurses
 
 **SDL2 Mode**
 
@@ -33,7 +33,7 @@ This is currently the default mode built:
 
 If you are on OSX using [homebrew](http://brew.sh/), you can install all of these dependencies with: 
 
-    brew install ncurses sdl2 sdl2_mixer sdl2_image ncurses 
+    brew install ncurses sdl2 sdl2_mixer sdl2_image  
     brew install sqlite boost pkgconfig xmlrpc-c
     brew link ncurses --force
 
@@ -65,7 +65,7 @@ You will need to be in the project root directory to follow these directions (wh
     mkdir build
     cd build
     cmake .. && make
-    bin/bmfec-client <password>
+    bin/bmfec-client 
 
 
 #Reporting Issues
