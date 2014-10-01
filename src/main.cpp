@@ -3,6 +3,7 @@
 #include <string>
 
 #include "engine/shell.h"
+#include "parsers/MainConfigParser.h"
 #include "util/logger.h"
 #include "util/term_control.h"
 
@@ -16,27 +17,15 @@ extern "C" int main(int argc, char **argv){
     int main(int argc, char **argv){
 #endif
 
-    if(argc < 2){
-        std::cout << "Usage: bmfec-client <apipassword>" << std::endl;
-        return 0;
-    }
-
-
     GlobalLogger::Instance()->writeToLogFile("debug.log", "Starting");
 
     setlocale(LC_ALL, "en_US.UTF-8");
 
-    std::cout << "Welcome to bmfec-client" << std::endl;
-    sleep(1);
-    std::cout << "Please standby while Network is initialized" << std::endl;
-    sleep(1);
+    std::cout << "Please standby while bmfec-client is initialized" << std::endl;
+    sleep(2);
     term_clear();
 
-    std::string pw = argv[1];
-    std::string commstring("localhost,8442,debuguser," + pw);
-
-    NetworkManager::Instance()->startModule("bitmessage", commstring);
-
+    MainConfigParser::Instance()->parse(argc, argv);
 
     _SharedPtr<Shell>shell(new Shell());
 
