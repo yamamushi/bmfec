@@ -44,9 +44,10 @@ bool GlobalLogger::processingCommand() {
 void GlobalLogger::runCommandQueue() {
     while(m_commandQueuerunning){
         if(!parseNextCommand()){
-            break;
+            sleep(1);
         }
     }
+    m_commandQueuerunning = false;
 }
 
 void GlobalLogger::logToFileCommand(std::string output, std::string logFile) {

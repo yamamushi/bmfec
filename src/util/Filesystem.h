@@ -16,6 +16,7 @@ public:
 
     bool CreateDirectory(std::string directory);
     bool CheckIfExists(std::string file);
+    bool CreateFile(std::string file);
 
     std::string expand_user(std::string path);
 

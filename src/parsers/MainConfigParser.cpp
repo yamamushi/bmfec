@@ -15,6 +15,10 @@
 #include <boost/progress.hpp>
 #include <boost/program_options.hpp>
 #include <boost/bind.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+
+#include "util/Filesystem.h"
 
 #include <iostream>
 #include <fstream>
@@ -43,11 +47,16 @@ bool MainConfigParser::parse(int _argc, char* _argv[]){
     argc = _argc;
     argv = _argv;
 
+    FileSystemHandler filesystem;
+    std::string defaultConfFile = filesystem.expand_user("~/.bmfec/bmfec.conf");
+
+    filesystem.CreateFile(defaultConfFile); // will fail if the file already exists
+
     try {
 
         po::options_description desc("Default options");
         desc.add_options()
-                ("config,c", po::value<std::string>(&configpath)->default_value("bmfec.conf"),"Configuration file, default bmfec.conf")
+                ("config,c", po::value<std::string>(&configpath)->default_value(defaultConfFile),"Configuration file, default ~/.bmfec/bmfec.conf")
                 ("help,h", "display this help text")
                 ("version,v", "display version number")
                 ;
@@ -57,13 +66,13 @@ bool MainConfigParser::parse(int _argc, char* _argv[]){
                 //("network.netmodule", po::value<std::string>()->default_value("bitmessage")->notifier(boost::bind(&MainConfigParser::setNetworkModule, this, _1)),"Net Communication Module")
                 ("network.defaultEnableOutbound", po::value<bool>(&m_defaultEnableOutbound)->default_value(false), "Enable outbound communications on startup")
                 ("network.loadModuleOnStart", po::value<bool>(&m_loadModuleOnStart)->default_value(false), "Load API handlers on startup")
+                ("network.polltime", po::value<int>(&m_pollTime)->default_value(10), "Poll for data every X seconds (between 1 and 60)")
 
 
                 ("network.bitmessage.remotehost", po::value<std::string>(&remote_bitmessagehost)->default_value("localhost"), "Remote Bitmessage API Host")
                 ("network.bitmessage.remoteport", po::value<int>(&remote_bitmessageport)->default_value(8442), "Remote Bitmessage API server port")
-                ("network.bitmessage.remoteuser", po::value<std::string>(&remote_bitmessageuser)->default_value("defaultuser"), "Remote Bitmessage API Username")
-                ("network.bitmessage.remotepass", po::value<std::string>(&remote_bitmessagepass)->default_value("defaultpass"), "Remote Bitmessage API Password")
-                ("network.bitmessage.polltime", po::value<int>(&m_pollTime)->default_value(10), "Poll for data every X seconds (between 1 and 60)")
+                ("network.bitmessage.remoteuser", po::value<std::string>(&remote_bitmessageuser)->default_value("apiuser"), "Remote Bitmessage API Username")
+                ("network.bitmessage.remotepass", po::value<std::string>(&remote_bitmessagepass)->default_value("apipass"), "Remote Bitmessage API Password")
 
                 ;
 
@@ -124,6 +133,43 @@ bool MainConfigParser::parse(int _argc, char* _argv[]){
         return false;
     }
     return true;
+}
+
+
+void MainConfigParser::writeConfigFile(std::string file){
+
+    FileSystemHandler filesystem;
+    std::string confFile;
+
+    if(file == ""){
+        confFile = filesystem.expand_user("~/.bmfec/bmfec.conf");
+    }
+    else{
+        confFile = file;
+    }
+
+    boost::property_tree::ptree root;
+    boost::property_tree::ptree network;
+    network.put("defaultEnableOutbound", m_defaultEnableOutbound);
+    network.put("loadModuleOnStart", m_loadModuleOnStart);
+    network.put("polltime", m_pollTime);
+    root.push_front(
+            boost::property_tree::ptree::value_type( "network", network )
+    );
+
+    boost::property_tree::ptree networkBitMessage;
+    networkBitMessage.put("remotehost", remote_bitmessagehost);
+    networkBitMessage.put("remoteport", remote_bitmessageport);
+    networkBitMessage.put("remoteuser", remote_bitmessageuser);
+    networkBitMessage.put("remotepass", remote_bitmessagepass);
+
+    root.push_front(
+            boost::property_tree::ptree::value_type( "network.bitmessage", networkBitMessage )
+    );
+
+
+    boost::property_tree::write_ini(confFile, root);
+
 }
 
 

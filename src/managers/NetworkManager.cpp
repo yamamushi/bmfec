@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include "util/Clock.h"
+#include "util/logger.h"
 
 #include <BitMessage.h>
 
@@ -35,6 +36,7 @@ void NetworkManager::startModule(std::string const module, std::string const com
     if(netmodule == "bitmessage"){
 
         for(size_t x = 0; x < m_modulesList.size(); x++){
+
             if(m_modulesList.at(x)->getCommstring() == commstring && m_modulesList.at(x)->moduleType() == ModuleType::BITMESSAGE){
                 return;
             }

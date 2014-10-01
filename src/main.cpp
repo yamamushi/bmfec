@@ -18,7 +18,6 @@ extern "C" int main(int argc, char **argv){
     int main(int argc, char **argv){
 #endif
 
-
     setlocale(LC_ALL, "en_US.UTF-8");
 
     std::cout << "Please standby while bmfec-client is initialized" << std::endl;
@@ -32,13 +31,12 @@ extern "C" int main(int argc, char **argv){
             return 0;
         }
 
-
+    MainConfigParser::Instance()->parse(argc, argv);
 
 
     GlobalLogger::Instance()->writeToLogFile("Starting");
 
 
-    MainConfigParser::Instance()->parse(argc, argv);
 
     _SharedPtr<Shell>shell(new Shell());
 
@@ -51,6 +49,7 @@ extern "C" int main(int argc, char **argv){
 
     }
 
+    MainConfigParser::Instance()->writeConfigFile();
     std::cout << "bmfec-client shutting down" << std::endl;
     sleep(1);
 

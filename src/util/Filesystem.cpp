@@ -1,7 +1,9 @@
 #include "Filesystem.h"
 #include "logger.h"
 #include <iostream>
+#include <sstream>
 #include <cassert>
+#include <fstream>
 
 bool FileSystemHandler::CreateDirectory(std::string directory) {
 
@@ -20,6 +22,25 @@ bool FileSystemHandler::CreateDirectory(std::string directory) {
         else{
             return false;
         }
+    }
+}
+
+bool FileSystemHandler::CreateFile(std::string file) {
+
+    file = expand_user(file);
+
+    if(CheckIfExists(file)){
+        //GlobalLogger::Instance()->writeToLogFile("Could not create file: " + file + " - File already exists");
+        return false;
+    }
+    else{
+
+        std::ofstream output(file);
+
+
+            GlobalLogger::Instance()->writeToLogFile("File created: " + file);
+
+            return true;
     }
 }
 
