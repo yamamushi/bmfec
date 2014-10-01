@@ -7,7 +7,7 @@
 #include <iostream>
 #include <cassert>
 
-
+#include <boost/filesystem.hpp>
 #include "util/Clock.h"
 
 
@@ -23,11 +23,12 @@ GlobalLogger *GlobalLogger::Instance() {
 }
 
 
-void GlobalLogger::writeToLogFile(std::string logFile, std::string output) {
+void GlobalLogger::writeToLogFile(std::string output, std::string logFile) {
 
+    logFile = "~/.bmfec/" + logFile;
     logFile = expand_user(logFile);
 
-    std::pair<std::string, std::string> logOutput(logFile, output);
+    std::pair<std::string, std::string> logOutput(output, logFile);
     addToCommandQueue(logOutput);
 }
 
@@ -48,9 +49,9 @@ void GlobalLogger::runCommandQueue() {
     }
 }
 
-void GlobalLogger::logToFileCommand(std::string logFile, std::string output) {
+void GlobalLogger::logToFileCommand(std::string output, std::string logFile) {
 
-    std::ofstream log_file( logFile );
+    std::ofstream log_file( logFile, std::ios::app | std::ios::out);
     log_file << Clock::getTimeString() << " : " << output << std::endl;
 
     //log_file.close(); // Called automatically when log_file is destroyed

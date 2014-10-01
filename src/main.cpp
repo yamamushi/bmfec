@@ -18,7 +18,6 @@ extern "C" int main(int argc, char **argv){
     int main(int argc, char **argv){
 #endif
 
-    GlobalLogger::Instance()->writeToLogFile("debug.log", "Starting");
 
     setlocale(LC_ALL, "en_US.UTF-8");
 
@@ -27,7 +26,17 @@ extern "C" int main(int argc, char **argv){
     term_clear();
 
     FileSystemHandler fsHandler;
-    fsHandler.CreateDirectory("~/.bmfec");
+    if(!fsHandler.CheckIfExists("~/.bmfec"))
+        if(!fsHandler.CreateDirectory("~/.bmfec")){
+            std::cerr << "Error creating directory ~/.bmfec please check your local file permissions" << std::endl;
+            return 0;
+        }
+
+
+
+
+    GlobalLogger::Instance()->writeToLogFile("Starting");
+
 
     MainConfigParser::Instance()->parse(argc, argv);
 

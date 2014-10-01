@@ -4,6 +4,7 @@ include_directories(${BMFEC_SOURCE_DIR}/src/
 			${BMFEC_SOURCE_DIR}/deps/fecpp/src/
 			)
 
+
 set(
 CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin/
 )
@@ -36,4 +37,4 @@ add_executable(bmfec-client ${BMFEC_CLIENT_SOURCE} ${BMFEC_CLIENT_HEADERS})
 
 target_link_libraries(bmfec-client ${Boost_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES})
 
-set_target_properties(bmfec-client PROPERTIES LINK_FLAGS "-lncurses -lbmwrapper")
+set_target_properties(bmfec-client PROPERTIES LINK_FLAGS "-lncurses -lbmwrapper -lfecpp")

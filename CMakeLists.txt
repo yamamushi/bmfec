@@ -153,6 +153,10 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH  ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
+LINK_DIRECTORIES(
+${CMAKE_CURRENT_BINARY_DIR}/lib
+)
+
 #-----------------------------------------------------------------------------
 
 

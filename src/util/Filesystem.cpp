@@ -8,16 +8,14 @@ bool FileSystemHandler::CreateDirectory(std::string directory) {
     directory = expand_user(directory);
 
     if(CheckIfExists(directory)){
-        std::string debugFilePath("~/.bmfec/debug.txt");
-        GlobalLogger::Instance()->writeToLogFile(debugFilePath, "Could not create directory: " + directory + " - File already exists");
+        GlobalLogger::Instance()->writeToLogFile("Could not create directory: " + directory + " - File already exists");
         return false;
     }
     else{
 
         bool created = boost::filesystem::create_directory(directory);
         if(created) {
-            std::string debugFilePath("~/.bmfec/debug.txt");
-            GlobalLogger::Instance()->writeToLogFile(debugFilePath, "Directory created: " + directory);
+            GlobalLogger::Instance()->writeToLogFile("Directory created: " + directory);
         }
         else{
             return false;
