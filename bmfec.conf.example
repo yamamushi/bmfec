@@ -1,0 +1,13 @@
+# This is an example configuration file for bmfec-client
+# Please adjust as outlined in the documentation before starting
+# bmfec-client for the first time.
+[network]
+defaultEnableOutbound = true
+loadModuleOnStart = true
+
+[network.bitmessage]
+remotehost = localhost
+remoteport = 8442
+remoteuser = apiuser
+remotepass = apipassword
+polltime = 10

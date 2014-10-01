@@ -9,7 +9,7 @@ ScrollTextWidget::ScrollTextWidget(_SharedPtr<GenericWindow> parent, int xpos, i
     m_sizeY = m_parent->getY();
     m_sizeX = m_parent->getX();
 
-    m_beginPoint = m_sizeY-5;
+    m_beginPoint = m_sizeY-6;
     m_endPoint = 0;
 
 }
