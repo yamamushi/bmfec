@@ -64,4 +64,7 @@ private:
     GlobalLogger& operator=(GlobalLogger const&);  // Ignore the compiler! This Assignment operator is private!
     static GlobalLogger* m_pInstance;
 
+
+    std::string expand_user(std::string path);
+
 };

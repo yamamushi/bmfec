@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <cassert>
+
 
 #include "util/Clock.h"
 
@@ -22,6 +24,8 @@ GlobalLogger *GlobalLogger::Instance() {
 
 
 void GlobalLogger::writeToLogFile(std::string logFile, std::string output) {
+
+    logFile = expand_user(logFile);
 
     std::pair<std::string, std::string> logOutput(logFile, output);
     addToCommandQueue(logOutput);
@@ -46,7 +50,7 @@ void GlobalLogger::runCommandQueue() {
 
 void GlobalLogger::logToFileCommand(std::string logFile, std::string output) {
 
-    std::ofstream log_file( logFile, std::ofstream::app );
+    std::ofstream log_file( logFile );
     log_file << Clock::getTimeString() << " : " << output << std::endl;
 
     //log_file.close(); // Called automatically when log_file is destroyed
@@ -104,4 +108,24 @@ int GlobalLogger::getCommandQueueSize() {
 void GlobalLogger::clearCommandQueue() {
     CommandQueue.clear();
 
+}
+
+
+std::string GlobalLogger::expand_user(std::string path) {
+
+    if (! path.empty() && path[0] == '~') {
+        assert(path.size() == 1 || path[1] == '/');  // or other error handling
+        char const* home = getenv("HOME");
+        if (home || ((home = getenv("USERPROFILE")))) {
+            path.replace(0, 1, home);
+        }
+        else {
+            char const *hdrive = getenv("HOMEDRIVE"),
+                    *hpath = getenv("HOMEPATH");
+            assert(hdrive);  // or other error handling
+            assert(hpath);
+            path.replace(0, 1, std::string(hdrive) + hpath);
+        }
+    }
+    return path;
 }

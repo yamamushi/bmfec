@@ -9,6 +9,7 @@
 #include "bmclientInterface.h"
 #include "managers/ColorManager.h"
 #include "util/version.h"
+#include "util/Filesystem.h"
 #include "parsers/MainConfigParser.h"
 #include <string>
 #include <managers/NetworkManager.h>
@@ -218,6 +219,9 @@ void bmclientInterface::handleLineInput(std::string input) {
         }
     }
 
+    else if(command == "test") {
+return;
+    }
     else if(command == "show"){
         m_scrollBox->addMessage("\n");
 

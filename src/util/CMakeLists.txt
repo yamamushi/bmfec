@@ -3,6 +3,8 @@ set(BMFEC_CLIENT_SOURCE
    ${CMAKE_CURRENT_SOURCE_DIR}/Clock.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/logger.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/term_control.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/Filesystem.cpp
+
    PARENT_SCOPE
 )
 
@@ -16,5 +18,7 @@ set(BMFEC_CLIENT_HEADERS
    ${CMAKE_CURRENT_SOURCE_DIR}/messagequeue.h
    ${CMAKE_CURRENT_SOURCE_DIR}/term_control.h
    ${CMAKE_CURRENT_SOURCE_DIR}/version.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/Filesystem.h
+
    PARENT_SCOPE
 )

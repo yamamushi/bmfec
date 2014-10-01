@@ -6,6 +6,7 @@
 #include "parsers/MainConfigParser.h"
 #include "util/logger.h"
 #include "util/term_control.h"
+#include "util/Filesystem.h"
 
 #include "managers/NetworkManager.h"
 
@@ -24,6 +25,9 @@ extern "C" int main(int argc, char **argv){
     std::cout << "Please standby while bmfec-client is initialized" << std::endl;
     sleep(2);
     term_clear();
+
+    FileSystemHandler fsHandler;
+    fsHandler.CreateDirectory("~/.bmfec");
 
     MainConfigParser::Instance()->parse(argc, argv);
 
