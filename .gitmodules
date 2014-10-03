@@ -4,3 +4,6 @@
 [submodule "deps/fecpp"]
 	path = deps/fecpp
 	url = https://github.com/yamamushi/fecpp
+[submodule "deps/libnmcrpc"]
+	path = deps/libnmcrpc
+	url = https://github.com/yamamushi/libnmcrpc

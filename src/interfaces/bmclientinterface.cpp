@@ -9,6 +9,8 @@
 #include "bmclientInterface.h"
 #include "managers/ColorManager.h"
 #include "util/version.h"
+#include "util/Filesystem.h"
+#include "util/logger.h"
 #include "parsers/MainConfigParser.h"
 #include <string>
 #include <managers/NetworkManager.h>
@@ -151,6 +153,7 @@ void bmclientInterface::handleKeys(int input){
 
 void bmclientInterface::handleLineInput(std::string input) {
 
+    std::string originalInput = input;
     std::transform(input.begin(), input.end(), input.begin(), ::tolower);
 
     std::vector<std::string> words;
@@ -168,6 +171,7 @@ void bmclientInterface::handleLineInput(std::string input) {
 
     if(command == "start"){
 
+
         if(words.size() < 2 || words.size() > 6) {
             m_scrollBox->addMessage("\n");
             m_scrollBox->addMessage("Usage: start <username> <password> <host> <port>");
@@ -175,41 +179,83 @@ void bmclientInterface::handleLineInput(std::string input) {
         }
         else{
 
+            std::vector<std::string> options;
+            options.push_back(" ");
+
+            pos = 0;
+            prev = 0;
+
+            while ((pos = originalInput.find(' ', prev)) != std::string::npos) {
+                options.push_back(originalInput.substr(prev, pos - prev));
+                prev = pos + 1;
+            }
+            options.push_back(originalInput.substr(prev));
+
             m_scrollBox->addMessage("\n");
 
 
+            std::string host = MainConfigParser::Instance()->getRemote_bitmessagehost();
+            std::string port = MainConfigParser::Instance()->getRemote_bitmessageport();
+            std::string user = MainConfigParser::Instance()->getRemote_bitmessageuser();
+            std::string pass = MainConfigParser::Instance()->getRemote_bitmessagepass();
 
-                std::string host = MainConfigParser::Instance()->getRemote_bitmessagehost();
-                std::string port = MainConfigParser::Instance()->getRemote_bitmessageport();
-                std::string user = MainConfigParser::Instance()->getRemote_bitmessageuser();
-                std::string pass = MainConfigParser::Instance()->getRemote_bitmessagepass();
+            int portNo = 8442;
 
-                if(words.size() == 3){
-                    user = words.at(2);
+            if(options.size() == 3){
+                user = options.at(2);
+            }
+            else if(options.size() == 4){
+                user = options.at(2);
+                pass = options.at(3);
+            }
+            else if(options.size() == 5) {
+                user = options.at(2);
+                pass = options.at(3);
+                host = options.at(4);
+            }
+            else if(options.size() == 6){
+                user = options.at(2);
+                pass = options.at(3);
+                host = options.at(4);
+                port = options.at(5);
+
+                std::string::const_iterator it = port.begin();
+                while (it != port.end() && std::isdigit(*it)) ++it;
+                if (!port.empty() && it == port.end()) {
+                    std::istringstream convert(port);
+                    if (!(convert >> portNo)){
+                        m_scrollBox->addMessage("Usage: start <username> <password> <host> <port>");
+                        m_scrollBox->addMessage("\n");
+                        return;
+                    }
+                    else if(portNo < 1 || portNo > 65535){
+                        m_scrollBox->addMessage("Port number out of range (1-65535)");
+                        m_scrollBox->addMessage("\n");
+                        return;
+                    }
                 }
-                if(words.size() == 4){
-                    user = words.at(2);
-                    pass = words.at(3);
+                else{
+                    m_scrollBox->addMessage("Usage: start <username> <password> <host> <port>");
+                    m_scrollBox->addMessage("\n");
+                    return;
                 }
+                port = std::to_string(portNo);
 
-                if(words.size() == 5) {
-                    user = words.at(2);
-                    pass = words.at(3);
-                    host = words.at(4);
-                }
+            }
 
-                if(words.size() == 6){
-                    user = words.at(2);
-                    pass = words.at(3);
-                    host = words.at(4);
-                    port = words.at(5);
-                }
 
-                std::string commstring( host + "," + port + "," + user + "," + pass);
+            std::string commstring( host + "," + port + "," + user + "," + pass);
+            GlobalLogger::Instance()->writeToLogFile("Attempting to load module with commstring - " + commstring);
 
-                NetworkManager::Instance()->startModule("bitmessage", commstring);
+            NetworkManager::Instance()->startModule("bitmessage", commstring);
+            m_networkActive = NetworkManager::Instance()->moduleAccessible("bitmessage");
+            MainConfigParser::Instance()->setRemote_bitmessagehost(host);
+            MainConfigParser::Instance()->setRemote_bitmessageport(portNo);
+            MainConfigParser::Instance()->setRemote_bitmessageuser(user);
+            MainConfigParser::Instance()->setRemote_bitmessagepass(pass);
 
-               m_networkActive = NetworkManager::Instance()->moduleAccessible("bitmessage");
+            if(m_networkActive)
+                m_scrollBox->addMessage("Network Module Activated");
 
             m_outboundAllowed = true;
             m_scrollBox->addMessage("Outbound Communications Enabled");
@@ -218,37 +264,111 @@ void bmclientInterface::handleLineInput(std::string input) {
         }
     }
 
+
+
+    else if(command == "test") {
+        return;
+    }
+
+
+
+
+
     else if(command == "show"){
         m_scrollBox->addMessage("\n");
 
         if(words.size() < 3){
 
             m_scrollBox->addMessage("Usage: show <option>");
-            m_scrollBox->addMessage("Available Options: config");
+            m_scrollBox->addMessage("Example: show config");
 
         }
         else {
             if(words.at(2) == "config" ) {
 
+                std::string host = MainConfigParser::Instance()->getRemote_bitmessagehost();
+                std::string port = MainConfigParser::Instance()->getRemote_bitmessageport();
+                std::string user = MainConfigParser::Instance()->getRemote_bitmessageuser();
+                std::string pass = MainConfigParser::Instance()->getRemote_bitmessagepass();
+
                 m_scrollBox->addMessage("Option   - Status      | Description");
                 m_scrollBox->addMessage("------------------------------------------------------------");
+                if(MainConfigParser::Instance()->getLoadModuleOnStart())
+                    m_scrollBox->addMessage("network.loadModuleOnStart = true");
+                else
+                    m_scrollBox->addMessage("network.loadModuleOnStart = false");
+
+                if(MainConfigParser::Instance()->getDefaultEnabledOutbound())
+                    m_scrollBox->addMessage("network.defaultEnableOutbound = true");
+                else
+                    m_scrollBox->addMessage("network.defaultEnableOutbound = false");
+
+                m_scrollBox->addMessage("network.polltime = " + std::to_string(MainConfigParser::Instance()->getPollTime()));
+
+                m_scrollBox->addMessage("network.bitmessage.remotehost = " + host);
+                m_scrollBox->addMessage("network.bitmessage.remoteport = " + port);
+                m_scrollBox->addMessage("network.bitmessage.remoteuser = " + user);
+                m_scrollBox->addMessage("network.bitmessage.remotepass = " + pass);
 
                 if (m_outboundAllowed)
-                    m_scrollBox->addMessage("outbound - Enabled     | Outbound Communications Enabled");
+                    m_scrollBox->addMessage("outbound = Enabled     | Outbound Communications Enabled");
                 else
-                    m_scrollBox->addMessage("outbound - Disabled    | Outbound Communications Disabled");
+                    m_scrollBox->addMessage("outbound = Disabled    | Outbound Communications Disabled");
 
-                m_scrollBox->addMessage("polltime - " + std::to_string(m_pollTime) + " seconds  | Poll for data every " + std::to_string(m_pollTime) + " seconds");
+                m_scrollBox->addMessage("polltime = " + std::to_string(m_pollTime) + " seconds  | Poll for data every " + std::to_string(m_pollTime) + " seconds");
 
             }
+
+
+
+            else if(words.at(2) == "polltime" || words.at(2) == "network.polltime"){
+                m_scrollBox->addMessage("network.polltime = " + std::to_string(MainConfigParser::Instance()->getPollTime()));
+
+            }
+
+
+            else if(words.at(2) == "network.bitmessage.remotehost" || words.at(2) == "bitmessage.remotehost"){
+                m_scrollBox->addMessage("network.bitmessage.remotehost = " + MainConfigParser::Instance()->getRemote_bitmessagehost());
+            }
+
+
+
+            else if(words.at(2) == "network.bitmessage.remoteport" || words.at(2) == "bitmessage.remortport"){
+                m_scrollBox->addMessage("network.bitmessage.remoteport = " + MainConfigParser::Instance()->getRemote_bitmessageport());
+
+
+            }
+
+
+            else if(words.at(2) == "network.bitmessage.remoteuser" || words.at(2) == "bitmessage.remoteuser"){
+                m_scrollBox->addMessage("network.bitmessage.remoteuser = " + MainConfigParser::Instance()->getRemote_bitmessageuser());
+
+            }
+
+
+
+            else if(words.at(2) == "network.bitmessage.remotepass" || words.at(2) == "bitmessage.remotepass"){
+                m_scrollBox->addMessage("network.bitmessage.remotepass = " + MainConfigParser::Instance()->getRemote_bitmessagepass());
+
+            }
+
+
             else{
                 m_scrollBox->addMessage("Unknown Option: " + words.at(2));
-                m_scrollBox->addMessage("Available Options: config");
+                m_scrollBox->addMessage("Example: show config");
+
             }
         }
         m_scrollBox->addMessage("\n");
 
     }
+
+
+
+
+
+
+
 
     else if(command == "set") {
         m_scrollBox->addMessage("\n");
@@ -259,9 +379,25 @@ void bmclientInterface::handleLineInput(std::string input) {
 
         }
         else {
-            if(words.at(2) == "polltime"){
+
+            std::vector<std::string> options;
+            options.push_back(" ");
+
+            pos = 0;
+            prev = 0;
+
+            while ((pos = originalInput.find(' ', prev)) != std::string::npos) {
+                options.push_back(originalInput.substr(prev, pos - prev));
+                prev = pos + 1;
+            }
+            options.push_back(originalInput.substr(prev));
+
+
+            if(words.at(2) == "polltime" || words.at(2) == "network.polltime"){
                 if(words.size() < 4){
                     m_scrollBox->addMessage("Usage: set polltime <seconds> - Will default to time set in config file if not a value between 1 and 60");
+                    m_scrollBox->addMessage("\n");
+                    return;
                 }
                 else {
                     std::string::const_iterator it = words.at(3).begin();
@@ -274,7 +410,9 @@ void bmclientInterface::handleLineInput(std::string input) {
                         if (m_pollTime < 1 || m_pollTime > 60)
                             m_pollTime = MainConfigParser::Instance()->getPollTime();
 
-                        m_scrollBox->addMessage("polltime - " + std::to_string(m_pollTime) + " seconds  | Poll for data every " + std::to_string(m_pollTime) + " seconds");
+                        MainConfigParser::Instance()->set_pollTime(m_pollTime);
+                        m_scrollBox->addMessage("polltime = " + std::to_string(m_pollTime) + " seconds  | Poll for data every " + std::to_string(m_pollTime) + " seconds");
+
 
                     }
                     else {
@@ -283,14 +421,149 @@ void bmclientInterface::handleLineInput(std::string input) {
                 }
 
             }
+
+
+
+            else if(words.at(2) == "network.bitmessage.remotehost" || words.at(2) == "bitmessage.remotehost"){
+                if(options.size() < 4){
+                    m_scrollBox->addMessage("Usage: set network.bitmessage.remotehost <host> - Will default to host set in config file");
+                    m_scrollBox->addMessage("\n");
+                    return;
+                }
+                MainConfigParser::Instance()->setRemote_bitmessagehost(options.at(3));
+                m_scrollBox->addMessage("network.bitmessage.remotehost = " + options.at(3));
+
+            }
+
+
+
+            else if(words.at(2) == "network.bitmessage.remoteport" || words.at(2) == "bitmessage.remortport"){
+                if(options.size() < 4){
+                    m_scrollBox->addMessage("Usage: set network.bitmessage.remoteport <port> - Will default to port set in config file");
+                    m_scrollBox->addMessage("\n");
+                    return;
+                }
+                else{
+                    int port = 8442;
+                    std::string::const_iterator it = options.at(3).begin();
+                    if (!options.at(3).empty() && it == options.at(3).end()) {
+                        std::istringstream convert(port);
+                        if (!(convert >> port)){
+                            m_scrollBox->addMessage("Usage: set network.bitmessage.remoteport <port> - Will default to port set in config file");
+                            m_scrollBox->addMessage("\n");
+                            return;
+                        }
+                        else if(port < 1 || port > 65535){
+                            m_scrollBox->addMessage("Port number out of range (1-65535)");
+                            m_scrollBox->addMessage("\n");
+                            return;
+                        }
+                    }
+                    else{
+                        m_scrollBox->addMessage("Usage: set network.bitmessage.remoteport <port> - Will default to port set in config file");
+                        m_scrollBox->addMessage("\n");
+                        return;
+                    }
+                    m_scrollBox->addMessage("network.bitmessage.remoteport = " + std::to_string(port));
+                    MainConfigParser::Instance()->setRemote_bitmessageport(port);
+
+                }
+
+
+            }
+
+
+
+            else if(words.at(2) == "network.bitmessage.remoteuser" || words.at(2) == "bitmessage.remoteuser"){
+                if(options.size() < 4){
+                    m_scrollBox->addMessage("Usage: set network.bitmessage.remoteuser <user> - Will default to user set in config file");
+                    m_scrollBox->addMessage("\n");
+                    return;
+                }
+                m_scrollBox->addMessage("network.bitmessage.remoteuser = " + options.at(3));
+                MainConfigParser::Instance()->setRemote_bitmessageuser(options.at(3));
+            }
+
+
+
+            else if(words.at(2) == "network.bitmessage.remotepass" || words.at(2) == "bitmessage.remotepass"){
+                if(options.size() < 4){
+                    m_scrollBox->addMessage("Usage: set network.bitmessage.remotepass <pass> - Will default to pass set in config file");
+                    m_scrollBox->addMessage("\n");
+                    return;
+
+                }
+                m_scrollBox->addMessage("network.bitmessage.remotepass = " + options.at(3));
+                MainConfigParser::Instance()->setRemote_bitmessagepass(options.at(3));
+
+            }
+
+
+            else if(words.at(2) == "network.defaultenableoutbound" ){
+                if(options.size() < 4){
+                    m_scrollBox->addMessage("Usage: set network.defaultEnableOutbound <bool> - Will default to boolean set in config file");
+                    m_scrollBox->addMessage("\n");
+                    return;
+                }
+                bool setting = false;
+
+                if(words.at(3) == "on" || words.at(3) == "true" ||  words.at(3) == "enable" || words.at(3) == "1") {
+                    setting = true;
+                    m_scrollBox->addMessage("network.defaultEnableOutbound = true");
+                }
+                else if(words.at(3) == "off" || words.at(3) == "false" ||  words.at(3) == "disable" || words.at(3) == "0") {
+                    setting = false;
+                    m_scrollBox->addMessage("network.defaultEnableOutbound = false");
+                }
+                else{
+                    m_scrollBox->addMessage("Usage: set network.defaultEnableOutbound <bool> - Will default to boolean set in config file");
+                    m_scrollBox->addMessage("\n");
+                    return;
+                }
+
+                MainConfigParser::Instance()->set_defaultEnableOutbound(setting);
+
+            }
+
+
+            else if(words.at(2) == "network.loadmoduleonstart" ) {
+                if(options.size() < 4){
+                    m_scrollBox->addMessage("Usage: set network.loadModuleOnStart <bool> - Will default to boolean set in config file");
+                    m_scrollBox->addMessage("\n");
+                    return;
+                }
+                bool setting = false;
+
+                if(words.at(3) == "on" || words.at(3) == "true" ||  words.at(3) == "enable" || words.at(3) == "1") {
+                    setting = true;
+                    m_scrollBox->addMessage("network.loadModuleOnStart = true");
+                }
+                else if(words.at(3) == "off" || words.at(3) == "false" ||  words.at(3) == "disable" || words.at(3) == "0"){
+                    setting = false;
+                    m_scrollBox->addMessage("network.loadModuleOnStart = false");
+                }
+                else{
+                    m_scrollBox->addMessage("Usage: set network.loadModuleOnStart <bool> - Will default to boolean set in config file");
+                    m_scrollBox->addMessage("\n");
+                    return;
+                }
+
+                MainConfigParser::Instance()->set_loadModuleOnStart(setting);
+
+            }
+
             else{
-                m_scrollBox->addMessage("Unknown Variable: " + words.at(2));
+                m_scrollBox->addMessage("Unknown Variable: " + options.at(2));
             }
         }
 
         m_scrollBox->addMessage("\n");
 
     }
+
+
+
+
 
 
     else if(command == "enable"){
@@ -317,6 +590,10 @@ void bmclientInterface::handleLineInput(std::string input) {
 
     }
 
+
+
+
+
     else if(command == "disable"){
         m_scrollBox->addMessage("\n");
 
@@ -342,6 +619,8 @@ void bmclientInterface::handleLineInput(std::string input) {
 
     }
 
+
+
     else if(command == "stop"){
         m_outboundAllowed = false;
         NetworkManager::Instance()->stopNetwork();
@@ -349,6 +628,10 @@ void bmclientInterface::handleLineInput(std::string input) {
         m_scrollBox->addMessage("Outbound Communications Disabled, this does not guarantee that the associated daemon will halt outbound communications");
         m_scrollBox->addMessage("\n");
     }
+
+
+
+
 
     else if(command == "help"){
         m_scrollBox->addMessage("\n");

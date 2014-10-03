@@ -6,6 +6,7 @@
 #include "parsers/MainConfigParser.h"
 #include "util/logger.h"
 #include "util/term_control.h"
+#include "util/Filesystem.h"
 
 #include "managers/NetworkManager.h"
 
@@ -17,15 +18,25 @@ extern "C" int main(int argc, char **argv){
     int main(int argc, char **argv){
 #endif
 
-    GlobalLogger::Instance()->writeToLogFile("debug.log", "Starting");
-
     setlocale(LC_ALL, "en_US.UTF-8");
 
     std::cout << "Please standby while bmfec-client is initialized" << std::endl;
     sleep(2);
     term_clear();
 
+    FileSystemHandler fsHandler;
+    if(!fsHandler.CheckIfExists("~/.bmfec"))
+        if(!fsHandler.CreateDirectory("~/.bmfec")){
+            std::cerr << "Error creating directory ~/.bmfec please check your local file permissions" << std::endl;
+            return 0;
+        }
+
     MainConfigParser::Instance()->parse(argc, argv);
+
+
+    GlobalLogger::Instance()->writeToLogFile("Starting");
+
+
 
     _SharedPtr<Shell>shell(new Shell());
 
@@ -38,6 +49,7 @@ extern "C" int main(int argc, char **argv){
 
     }
 
+    MainConfigParser::Instance()->writeConfigFile();
     std::cout << "bmfec-client shutting down" << std::endl;
     sleep(1);
 

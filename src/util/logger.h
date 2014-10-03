@@ -22,12 +22,12 @@ class GlobalLogger {
 public:
 
     static GlobalLogger* Instance();
-    void writeToLogFile(std::string logFile, std::string output);
+    void writeToLogFile(std::string output, std::string logFile="debug.txt");
 
 
 private:
 
-    void logToFileCommand(std::string logFile, std::string output);
+    void logToFileCommand(std::string output, std::string logFile);
 
 
     // Command Queue Thread Things
@@ -63,5 +63,8 @@ private:
     // The copy operator should always be private in a singleton!
     GlobalLogger& operator=(GlobalLogger const&);  // Ignore the compiler! This Assignment operator is private!
     static GlobalLogger* m_pInstance;
+
+
+    std::string expand_user(std::string path);
 
 };

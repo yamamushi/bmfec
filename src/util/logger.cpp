@@ -5,7 +5,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <cassert>
 
+#include <boost/filesystem.hpp>
 #include "util/Clock.h"
 
 
@@ -21,9 +23,12 @@ GlobalLogger *GlobalLogger::Instance() {
 }
 
 
-void GlobalLogger::writeToLogFile(std::string logFile, std::string output) {
+void GlobalLogger::writeToLogFile(std::string output, std::string logFile) {
 
-    std::pair<std::string, std::string> logOutput(logFile, output);
+    logFile = "~/.bmfec/" + logFile;
+    logFile = expand_user(logFile);
+
+    std::pair<std::string, std::string> logOutput(output, logFile);
     addToCommandQueue(logOutput);
 }
 
@@ -39,14 +44,15 @@ bool GlobalLogger::processingCommand() {
 void GlobalLogger::runCommandQueue() {
     while(m_commandQueuerunning){
         if(!parseNextCommand()){
-            break;
+            sleep(1);
         }
     }
+    m_commandQueuerunning = false;
 }
 
-void GlobalLogger::logToFileCommand(std::string logFile, std::string output) {
+void GlobalLogger::logToFileCommand(std::string output, std::string logFile) {
 
-    std::ofstream log_file( logFile, std::ofstream::app );
+    std::ofstream log_file( logFile, std::ios::app | std::ios::out);
     log_file << Clock::getTimeString() << " : " << output << std::endl;
 
     //log_file.close(); // Called automatically when log_file is destroyed
@@ -104,4 +110,24 @@ int GlobalLogger::getCommandQueueSize() {
 void GlobalLogger::clearCommandQueue() {
     CommandQueue.clear();
 
+}
+
+
+std::string GlobalLogger::expand_user(std::string path) {
+
+    if (! path.empty() && path[0] == '~') {
+        assert(path.size() == 1 || path[1] == '/');  // or other error handling
+        char const* home = getenv("HOME");
+        if (home || ((home = getenv("USERPROFILE")))) {
+            path.replace(0, 1, home);
+        }
+        else {
+            char const *hdrive = getenv("HOMEDRIVE"),
+                    *hpath = getenv("HOMEPATH");
+            assert(hdrive);  // or other error handling
+            assert(hpath);
+            path.replace(0, 1, std::string(hdrive) + hpath);
+        }
+    }
+    return path;
 }

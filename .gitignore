@@ -52,3 +52,7 @@ xcuserdata/
 
 # Configuration files
 bmfec.conf
+
+deps/deps/libbmwrapper/deps/jsoncpp/*
+deps/deps/libbmwrapper/deps/fecpp/*
+deps/deps/libbmwrapper/deps/libnmcrpc/*
