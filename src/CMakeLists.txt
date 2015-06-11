@@ -35,6 +35,6 @@ add_subdirectory(wintypes/sdl)
 
 add_executable(bmfec-client ${BMFEC_CLIENT_SOURCE} ${BMFEC_CLIENT_HEADERS})
 
-target_link_libraries(bmfec-client ${Boost_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES})
+target_link_libraries(bmfec-client ${Boost_LIBRARIES})
 
 set_target_properties(bmfec-client PROPERTIES LINK_FLAGS "-lncurses -lbmwrapper -lfecpp")

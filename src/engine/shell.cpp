@@ -34,20 +34,11 @@
 #include "wintypes/ncurses/NcursesManager.h"
 #endif
 
-#ifdef _BMFEC_SDLCLIENT_
-#include "wintypes/sdl/SDLManager.h"
-#endif
-
-
 
 void Shell::boot(){
 
-#ifdef _BMFEC_SDLCLIENT_
-    m_graphicsManager = new SDLManager;
-#else
 #ifdef _BMFEC_NCURSESCLIENT_
     m_graphicsManager = new NcursesManager;
-#endif
 #endif
 
     if(!m_graphicsManager->start()){
@@ -91,8 +82,7 @@ bool Shell::init(){
     //std::cout << "Command Queue Starting" << std::endl;
     Hermes::Instance()->addToCommandQueue(_STD_BIND(&Shell::doNothing, this));
     sleep(1);
-
-*/
+    */
     
     return true;
     

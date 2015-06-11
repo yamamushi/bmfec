@@ -2,6 +2,4 @@
 // Uncomment one of the defines below to compile support for that rendering type
 //
 
-
-//#cmakedefine _BMFEC_SDLCLIENT_
 #cmakedefine _BMFEC_NCURSESCLIENT_
