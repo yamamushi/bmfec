@@ -94,9 +94,32 @@ bool NetworkManager::moduleAccessible(std::string moduleName) {
 
 
 void NetworkManager::stopNetwork(){
-
     for(size_t x = 0; x < m_modulesList.size(); x++){
         m_modulesList.at(x)->stopQueue();
     }
+}
 
+
+bool NetworkManager::send(NetworkMail message){
+
+    if(m_modulesList.size() == 0 )
+        return false;
+
+    for(size_t x = 0; x < m_modulesList.size(); x++){
+        if(m_modulesList.at(x)->moduleType() == ModuleType::BITMESSAGE){
+            return m_modulesList.at(x)->sendMail(message);
+        }
+    }
+}
+
+std::vector<_SharedPtr<NetworkMail> > NetworkManager::getAllInboxes(){
+
+    std::vector<_SharedPtr<NetworkMail> > completeInbox;
+
+    for(size_t x = 0; x < m_modulesList.size(); x++){
+        std::vector<_SharedPtr<NetworkMail> > temp = m_modulesList.at(x)->getAllInboxes();
+        completeInbox.insert(completeInbox.end(), temp.begin(), temp.end());
+    }
+
+    return completeInbox;
 }

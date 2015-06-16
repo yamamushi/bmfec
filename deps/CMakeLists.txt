@@ -1,2 +1,2 @@
-add_subdirectory(fecpp)
+#add_subdirectory(fecpp)
 add_subdirectory(libbmwrapper)

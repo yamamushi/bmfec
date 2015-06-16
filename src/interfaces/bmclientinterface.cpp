@@ -154,7 +154,7 @@ void bmclientInterface::handleKeys(int input){
 void bmclientInterface::handleLineInput(std::string input) {
 
     std::string originalInput = input;
-    std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+    //std::transform(input.begin(), input.end(), input.begin(), ::tolower);
 
     std::vector<std::string> words;
     std::string::size_type pos = 0;
@@ -254,8 +254,11 @@ void bmclientInterface::handleLineInput(std::string input) {
             MainConfigParser::Instance()->setRemote_bitmessageuser(user);
             MainConfigParser::Instance()->setRemote_bitmessagepass(pass);
 
+            m_networkActive = NetworkManager::Instance()->moduleAccessible("bitmessage");
+
             if(m_networkActive)
                 m_scrollBox->addMessage("Network Module Activated");
+
 
             m_outboundAllowed = true;
             m_scrollBox->addMessage("Outbound Communications Enabled");
@@ -266,11 +269,36 @@ void bmclientInterface::handleLineInput(std::string input) {
 
 
 
+
     else if(command == "test") {
-        return;
+        std::string testOutput;
+        m_scrollBox->addMessage("Modules Loaded: " + std::to_string(NetworkManager::Instance()->modulesLoaded()));
+        MessageBox testMessageBox = NetworkManager::Instance()->getAllInboxes();
+        m_scrollBox->addMessage("Complete Inbox Size: " + std::to_string(testMessageBox.size()));
+        m_scrollBox->addMessage("First Inbox Message Subject: " + testMessageBox.front()->getSubject());
+        m_scrollBox->addMessage("First Inbox Message:\n" + testMessageBox.front()->getMessage());
+        m_scrollBox->addMessage("\n");
+
     }
 
 
+    else if(command == "sendfile"){
+
+        if(words.size() != 6 ){
+
+            m_scrollBox->addMessage("Usage: sendfile <from> <to> <subject> <filepath>");
+            m_scrollBox->addMessage("Example: sendfile BM-1 BM-2 /home/user/image.png");
+
+        }
+        else {
+
+            NetworkMail outbound(words.at(2), words.at(3), words.at(4), words.at(5), true);
+
+            NetworkManager::Instance()->send(outbound);
+
+        }
+
+    }
 
 
 

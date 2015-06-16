@@ -20,7 +20,11 @@ Yamamushi
 
 #include "Network.h"
 
+typedef std::vector<_SharedPtr<NetworkMail> > MessageBox;
+
+
 class NetworkManager {
+
 
 public:
 
@@ -35,7 +39,8 @@ public:
     void moduleCheckMail(std::string moduleName);
     void checkMail();
     bool moduleNewMail(std::string moduleName);
-    bool newMail();
+    bool send(NetworkMail);
+    std::vector<_SharedPtr<NetworkMail> > getAllInboxes();
 
     void stopNetwork();
 
