@@ -13,8 +13,14 @@
 #include "util/logger.h"
 #include "parsers/MainConfigParser.h"
 #include <string>
+#include <cstring>
+
 #include <managers/NetworkManager.h>
 #include <iostream>
+#include <fstream>
+#include <base64.h>
+#include <decode.h>
+#include <encode.h>
 
 bmclientInterface::bmclientInterface(_SharedPtr<Shell> owner) : Interface(owner){
 
@@ -292,9 +298,51 @@ void bmclientInterface::handleLineInput(std::string input) {
         }
         else {
 
-            NetworkMail outbound(words.at(2), words.at(3), words.at(4), words.at(5), true);
+            /*
+             * 2 = from
+             * 3 = to
+             * 4 = subject
+             * 5 = filepath
+             */
 
-            NetworkManager::Instance()->send(outbound);
+            FileSystemHandler fsHandler;
+
+            std::string filename = fsHandler.expand_user(words.at(5));
+
+            std::ifstream binaryFile(filename, std::ios::in|std::ios::binary);
+
+            if (binaryFile.is_open()) {
+
+                // BEGIN
+                // get length of file:
+                binaryFile.seekg(0, binaryFile.end);
+                int length = binaryFile.tellg();
+                binaryFile.seekg(0, binaryFile.beg);
+                const char * filebuffer = new char [length];
+                binaryFile.read ((char*)filebuffer, length);
+                
+                base64::encoder l_encoder;
+                const char * l_base64encoderBuffer = new char [length];
+                l_encoder.encode((char*)filebuffer, length, (char*)l_base64encoderBuffer);
+
+                std::string l_base64StringBuffer((char *)l_base64encoderBuffer, length);
+
+                base64::decoder l_decoder;
+                const char * l_base64outputbuffer = new char [length];
+
+                l_decoder.decode((char *)l_base64StringBuffer.data(), length, (char *)l_base64outputbuffer);
+
+                std::ofstream outfile("/Users/yamamushi/new.jpg", std::ios::out|std::ios::binary);
+                outfile.write((char *)filebuffer, length);
+                outfile.close();
+                binaryFile.close();
+
+            }
+            else{
+                m_scrollBox->addMessage("Error: Cannot Open File at - " + filename);
+            }
+            //NetworkMail outbound(words.at(2), words.at(3), words.at(4), words.at(5), true);
+            //NetworkManager::Instance()->send(outbound);
 
         }
 
